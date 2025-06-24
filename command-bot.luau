@@ -1,3 +1,8 @@
+-- check if a version of the bot is already running
+if shared.dlcomp_command_bot then
+    return
+end
+
 local prefix = ";"
 local commands: {[string]: command_data} = {}
 

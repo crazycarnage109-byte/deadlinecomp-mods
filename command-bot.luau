@@ -1,3 +1,7 @@
+-- Command Bot module
+-- listens for commands written in chat and passes them to other modules
+-- exists because the built-in command bot doesnt let you register custom commands
+
 -- check if a version of the bot is already running
 if shared.dlcomp_command_bot then
     return

@@ -58,6 +58,7 @@ local slot_order = {"primary", "secondary", "throwable1", "throwable2"}
 local slot_empty = "nothing"
 
 type cleaning_context = {
+    -- warning/info about the loadout, key being the slot name
     feedback: {[string]: string},
     -- how many more grenades the player can have
     allowed_nades_left: number,
@@ -138,6 +139,25 @@ end
 
 
 do -- implementation
+    function format_feedback(feedback: {[string]: string}): string?
+        local formatted_list = {}
+
+        -- convert the map into an array
+        for _, slot_name in pairs(slot_order) do
+            local warning = feedback[slot_name]
+            if not warning then
+                continue
+            end
+            -- format text
+            table.insert(formatted_list, `({slot_name}) {warning}`)
+        end
+
+        if #formatted_list == 0 then
+            return nil
+        end
+        return table.concat(formatted_list, ", ")
+    end
+
     function handle_slot(player: any, slot_name: string, slot_bans: {string}, slot_known: {string}, context: cleaning_context)
         local equipment = player.get_weapon_data_from_character(slot_name)
         if not equipment then
@@ -173,25 +193,6 @@ do -- implementation
             context.feedback[slot_name] = `unknown name {equipment_name}`
             return
         end
-    end
-
-    function format_feedback(feedback: {[string]: string}): string?
-        local formatted_list = {}
-
-        -- convert the map into an array
-        for _, slot_name in pairs(slot_order) do
-            local warning = feedback[slot_name]
-            if not warning then
-                continue
-            end
-            -- format text
-            table.insert(formatted_list, `{slot_name} ({warning})`)
-        end
-
-        if #formatted_list == 0 then
-            return nil
-        end
-        return table.concat(formatted_list, ", ")
     end
 
     on_player_spawned:Connect(function(player_name)

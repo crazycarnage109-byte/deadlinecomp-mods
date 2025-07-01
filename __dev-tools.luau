@@ -8,7 +8,7 @@ for i, v in pairs(players.get("LegitACarWithAGun").get_weapon_data_from_characte
     print(i,v)
 end
 
--- get the name of the your equipment when spawning
+-- get the name of your equipment when spawning
 on_player_spawned:Connect(function(name)
     local player = players.get(name)
 

@@ -32,11 +32,17 @@ end
 -- listen for commands in chat
 chat.player_chatted:Connect(function(sender, channel, content)
     -- check if the command prefix exists, and remove it if it does
-    if content:sub(1, 1) ~= prefix then
+    if content:sub(1, prefix:len()) ~= prefix then
         chat.send_announcement(`missing prefix`)
         return
     end
-    content = content:sub(2)
+    content = content:sub(prefix:len()+1)
+
+    -- only let the server owner execute commands
+    if sender ~= sharedvars.vip_owner then
+        chat.send_announcement(`youre not the private server owner.`)
+        return
+    end
 
     -- scan until the next whitespace and treat it as the command name
     local command_name = string.match(content, "^%S+") or ""

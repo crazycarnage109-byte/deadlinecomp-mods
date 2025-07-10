@@ -7,6 +7,9 @@ if shared.dlcomp_command_bot then
     return
 end
 
+-- also import the arg-parser module so each module doesnt have to have logic to import it on its own
+require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
+
 local prefix = ";"
 local commands: {[string]: command_data} = {}
 

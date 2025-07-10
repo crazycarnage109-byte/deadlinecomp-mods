@@ -67,7 +67,7 @@ end
 
 shared.dlcomp_command_bot.add_command("countdown", "starts a countdown in chat", function(args: string)
     -- parse countdown duration
-    local duration, _ = shared.dlcomp_parser.get_number(args, 5, 0, nil)
+    local duration, _ = shared.dlcomp_parser.get_number(args, 5)
     duration = math.ceil(duration)
 
     -- treat duration <= 0 as cancel, simplest way

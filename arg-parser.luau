@@ -43,9 +43,19 @@ end
 
 -- treats the next argument as a number,
 -- will return nil if it cant be turned into a number, but the section will still get removed in info
-function get_number(args: string): (number?, parse_info)
+function get_number(args: string, default: number?, min: number?, max: number?): (number?, parse_info)
     local arg, info = get_string(args)
-    return tonumber(arg), info
+
+    -- process arg
+    local result = tonumber(arg) or default
+    if result and min then
+        result = math.max(result, min)
+    end
+    if result and max then
+        result = math.min(result, max)
+    end
+
+    return result, info
 end
 
 -- treats the next argument as a player name,

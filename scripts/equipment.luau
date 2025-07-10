@@ -1,8 +1,3 @@
--- generic table reader
-for i, v in pairs() do
-    print(i,v)
-end
-
 -- get slot data
 for i, v in pairs(players.get("LegitACarWithAGun").get_weapon_data_from_character("throwable1")) do
     print(i,v)

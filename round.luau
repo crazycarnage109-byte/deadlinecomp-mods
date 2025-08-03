@@ -1,5 +1,3 @@
-
-
 -- load command bot
 if not shared.dlcomp_command_bot then
     require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/command-bot.luau")
@@ -57,3 +55,5 @@ shared.dlcomp_command_bot.add_command("round", "starts a round. format: ;round m
 
     prepare_round(map_name, game_mode, round_duration, countdown_duration)
 end)
+
+shared.dlcomp_round = {}

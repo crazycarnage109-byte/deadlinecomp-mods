@@ -1,0 +1,27 @@
+-- either require this directly, or paste it in your server autorun
+-- intentionally written in a way where you can run it multiple times safely
+
+-- load modules
+if not shared.dlcomp_all_loaded then
+	require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/init.luau")
+end
+
+local geneva = shared.dlcomp_geneva
+
+-- ruleset
+geneva.set_banned_weapons({
+	"RPG7",
+	"PSRL",
+	"M67",
+	-- "F1",
+})
+geneva.set_max_grenades(1)
+
+-- behavior
+geneva.should_announce_equipment_cleaning(true)
+geneva.should_announce_unknown_equipment(true)
+
+
+
+-- finish
+geneva.toggle_rules(true) -- this also announces the ruleset in chat

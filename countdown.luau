@@ -1,8 +1,7 @@
--- Round Admin module
--- purpose is to make the process of starting a new round as easy as possible
+-- countdown module
+-- provides the ability to start a countdown in chat and freeze players in place
 
 -- todo: figure out how to freeze the round timer
--- todo: single command to start a match with a given map and gamemode
 
 -- load command bot
 if not shared.dlcomp_command_bot then
@@ -10,6 +9,7 @@ if not shared.dlcomp_command_bot then
 end
 
 local active_countdown: thread?
+local countdown_ended = Signal.new() :: Signal<>
 
 function freeze()
     sharedvars.plr_speed = 0.05 -- 0 seems to completely despawn your gun? lol
@@ -45,6 +45,7 @@ do -- countdown implementation
         end
 
         unfreeze()
+        countdown_ended:Fire()
     end
 
     function cancel_countdown()
@@ -85,11 +86,13 @@ shared.dlcomp_command_bot.add_command("unfreeze", "lets the players walk around 
     unfreeze()
 end)
 
-shared.dlcomp_round_admin = {
-    trigger_countdown = trigger_countdown,
+shared.dlcomp_countdown = {
+    countdown = trigger_countdown,
     cancel_countdown = cancel_countdown,
     freeze = freeze,
     unfreeze = unfreeze,
+
+    finished = countdown_ended,
 }
 
 chat.send_announcement("loaded round admin module")

@@ -60,11 +60,13 @@ do -- human-facing command-line stuff
 
     -- behaviour:
     function should_announce_unknown_equipment(want: boolean)
+        want = not not want -- convert to bool
         announce_unknown_equipment = want
         print(`announce_unknown_equipment = {want}`)
     end
 
     function should_announce_equipment_cleaning(want: boolean)
+        want = not not want -- convert to bool
         announce_equipment_cleaning = want
         print(`announce_equipment_cleaning = {want}`)
     end
@@ -77,12 +79,30 @@ do -- human-facing command-line stuff
 
         print(`enforce_rules = {enabled}`)
         chat.send_announcement(`GENEVA rules have been {enforce_rules and "enabled" or "disabled"}`)
+        if enforce_rules then
+            announce_ruleset()
+        end
     end
 
 
     -- info:
     function print_known_weapons()
-        print(table.concat(config.weapon_names, "\n"))
+        for _, weapon_name in pairs(config.weapon_names) do
+            print(weapon_name)
+        end
+    end
+
+    function announce_ruleset()
+        if not enforce_rules then
+            chat.send_announcement("GENEVA IS DISABLED, everything goes.")
+            return
+        end
+
+        local banned_weapons = #banned_weapon_list > 0 and table.concat(banned_weapon_list, ", ") or "none"
+
+        chat.send_announcement("ACTIVE GENEVA RULESET:")
+        chat.send_announcement(`banned weapons: {banned_weapons}`)
+        chat.send_announcement(`max equippable grenades: {max_equippable_grenades}`)
     end
 end
 
@@ -183,4 +203,5 @@ shared.dlcomp_geneva = {
     toggle_rules = toggle_rules,
     -- information, entierly human-facing
     print_known_weapons = print_known_weapons,
+    announce_ruleset = announce_ruleset,
 }

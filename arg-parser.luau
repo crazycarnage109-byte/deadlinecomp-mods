@@ -3,15 +3,9 @@
 -- in its own module and not integrated into the command-bot because I dont wanna get in the way of people doing their own thing with their arguments
 -- honestly not super confident in this
 
-export type parse_info = {
-    -- all the text After the current argument
-    remaining_text: string,
-    -- the string the return value value was made from, the raw argument section, useful if you wanna re-parse after a fail
-    converted_from: string,
-}
-
 -- creates a new parse_info instance, just for convenience
-function new_info(): parse_info
+-- see _interface.d.luau for the contents of the command_parse_info type
+function new_info(): command_parse_info
     return {
         remaining_text = "",
         converted_from = "",
@@ -25,7 +19,7 @@ end
 
 -- treats the next argument as a string
 -- cant fail
-function get_string(args: string): (string, parse_info)
+function get_string(args: string): (string, command_parse_info)
     local info = new_info()
 
     -- remove whitespace from start
@@ -43,7 +37,7 @@ end
 
 -- treats the next argument as a number,
 -- will return nil if it cant be turned into a number, but the section will still get removed in info
-function get_number(args: string, default: number?, min: number?, max: number?): (number?, parse_info)
+function get_number(args: string, default: number?, min: number?, max: number?): (number?, command_parse_info)
     local arg, info = get_string(args)
 
     -- process arg
@@ -60,7 +54,7 @@ end
 
 -- treats the next argument as a player name,
 -- will return nil if no such player exists, but the section will still get removed in info
-function get_player(args: string): (player?, parse_info)
+function get_player(args: string): (player?, command_parse_info)
     local arg, info = get_string(args)
     return players.get(arg), info
 end

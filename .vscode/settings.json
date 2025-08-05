@@ -3,6 +3,7 @@
         "./deadline-types/shared/globals.d.luau",
         "./deadline-types/shared/sharedvars.d.luau",
         "./deadline-types/server/globals.d.luau",
+		"./_interface.d.luau",
     ],
     "luau-lsp.sourcemap.enabled": false,
 }

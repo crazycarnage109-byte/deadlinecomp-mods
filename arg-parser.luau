@@ -4,13 +4,14 @@
 -- honestly not super confident in this
 
 -- creates a new parse_info instance, just for convenience
--- see _interface.d.luau for the contents of the command_parse_info type
+-- see _interface.d.luau for the command_parse_info interface
 function new_info(): command_parse_info
     return {
         remaining_text = "",
         converted_from = "",
     }
 end
+
 -- just removes whitespace from the start of a string
 function trim_start(str: string): string
     return string.gsub(str, "^%s+", "", 1)
@@ -36,7 +37,7 @@ function get_string(args: string): (string, command_parse_info)
 end
 
 -- treats the next argument as a number,
--- will return nil if it cant be turned into a number, but the section will still get removed in info
+-- will return nil if it cant be turned into a number, but the returned info will still remove the section
 function get_number(args: string, default: number?, min: number?, max: number?): (number?, command_parse_info)
     local arg, info = get_string(args)
 
@@ -53,10 +54,32 @@ function get_number(args: string, default: number?, min: number?, max: number?):
 end
 
 -- treats the next argument as a player name,
--- will return nil if no such player exists, but the section will still get removed in info
-function get_player(args: string): (player?, command_parse_info)
-    local arg, info = get_string(args)
-    return players.get(arg), info
+-- will return nil if no such player exists, but the returned info will still remove the section
+function get_player(args: string, match_exact: boolean?): (player?, command_parse_info)
+    local want_name, info = get_string(args)
+
+    -- the user wants the name to be an exact match
+    if match_exact then
+        return players.get(want_name), info
+    end
+
+    local matched_player: player?
+    for _, player in pairs( players.get_all() ) do
+        -- does the player match the arg?
+        if not string.match(player.name, want_name) then
+            continue
+        end
+
+        -- multiple players match the arg, cant be sure which they mean, give them neither
+        if matched_player then
+            return nil, info
+        end
+
+        -- first match, store for the above case
+        matched_player = player
+    end
+
+    return matched_player, info
 end
 
 shared.dlcomp_parser = {

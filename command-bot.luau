@@ -7,9 +7,6 @@ if shared.dlcomp_command_bot then
     return
 end
 
--- also import the arg-parser module so each module doesnt have to have logic to import it on its own
-require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
-
 local prefix = ";"
 local commands: {[string]: command_data} = {}
 
@@ -28,10 +25,6 @@ function add_command(name: string, explanation: string, callback: (args: string)
     }
 end
 
-function remove_command(name: string)
-    commands[name] = nil
-end
-
 -- listen for commands in chat
 chat.player_chatted:Connect(function(sender, channel, content)
     -- check if the command prefix exists, and remove it if it does
@@ -47,7 +40,7 @@ chat.player_chatted:Connect(function(sender, channel, content)
         return
     end
 
-    -- scan until the next whitespace and treat it as the command name
+    -- treat everything before the next whitespace as the command name
     local command_name = string.match(content, "^%S+") or ""
 
     -- attempt to find command from name
@@ -84,7 +77,6 @@ end)
 -- let other mods add/remove commands
 shared.dlcomp_command_bot = {
     add_command = add_command,
-    remove_command = remove_command,
 }
 
 chat.send_announcement(`loaded dlcomp-command-bot module with prefix {prefix}`)

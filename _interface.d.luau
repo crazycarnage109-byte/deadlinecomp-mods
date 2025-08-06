@@ -10,7 +10,6 @@ declare shared: {
 	[string]: any,
 	dlcomp_command_bot: {
 		add_command: (name: string, explanation: string, callback: (args: string) -> string?) -> nil,
-		remove_command: (name: string) -> nil,
 	},
 	dlcomp_parser: {
 		get_string: (args: string) -> (string, command_parse_info),

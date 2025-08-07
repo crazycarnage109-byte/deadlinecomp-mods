@@ -31,4 +31,9 @@ if not shared.dlcomp_round then
     require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/round.luau")
 end
 
+-- load team commands
+if not shared.dlcomp_team then
+    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/team.luau")
+end
+
 shared.dlcomp_all_loaded = true

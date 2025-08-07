@@ -63,19 +63,26 @@ function get_player(args: string, match_exact: boolean?): (player?, command_pars
         return players.get(want_name), info
     end
 
+    -- its annoying for the searching to be case sensitive
+    -- turn everything lowercase
+    want_name = string.lower(want_name)
+
     local matched_player: player?
     for _, player in pairs( players.get_all() ) do
-        -- does the player match the arg?
-        if not string.match(player.name, want_name) then
+        -- we turned the search arg all lowercase above, do the same with the name
+        local player_name = string.lower(player.name)
+
+        -- does the player's name match the search arg?
+        if not string.match(player_name, want_name) then
             continue
         end
 
-        -- multiple players match the arg, cant be sure which they mean, give them neither
+        -- multiple players match the search arg, cant be sure which they mean, return none of them
         if matched_player then
             return nil, info
         end
 
-        -- first match, store for the above case
+        -- first time we've matched, store for the above case
         matched_player = player
     end
 

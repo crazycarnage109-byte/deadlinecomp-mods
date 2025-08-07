@@ -29,16 +29,18 @@ shared.dlcomp_command_bot.add_command("switch", "switch the team of the specifie
         return "player not found"
     end
 
-    switch_player_team(want_player)
+    -- switch the player's team
+    local new_team = switch_player_team(want_player)
 
-    return nil
+    -- announce it
+    return `switched [{want_player.name}] to [{new_team}]`
 end)
 
 shared.dlcomp_command_bot.add_command("team_swap", "swap the teams of everyone", function(args: string): string?
     for _, player in pairs( players.get_all() ) do
         switch_player_team(player)
     end
-    return nil
+    return "teams have been swapped"
 end)
 
 shared.dlcomp_command_bot.add_command("team_scramble", "scramble players into teams randomly", function(args: string)

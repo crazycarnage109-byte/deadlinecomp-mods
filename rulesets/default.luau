@@ -1,7 +1,7 @@
 -- either require this directly, or paste it in your server autorun
 -- intentionally written in a way where you can run it multiple times safely
 
--- load modules
+-- load all modules
 if not shared.dlcomp_all_loaded then
 	require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/init.luau")
 end
@@ -21,6 +21,10 @@ geneva.set_max_grenades(1)
 geneva.should_announce_equipment_cleaning(true)
 geneva.should_announce_unknown_equipment(true)
 
+
+-- quality of life sharedvars
+sharedvars.gm_team_balancing_threshold = 9999
+sharedvars.chat_tips_enabled = false
 
 
 -- finish

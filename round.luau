@@ -11,6 +11,8 @@ if not shared.dlcomp_parser then
     require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
 end
 
+local ROUND_COMMAND_FORMAT = ";round map_name game_mode [round_duration] [countdown_duration]"
+
 local last_countdown_duration = 15
 local want_gamemode: string?
 
@@ -46,12 +48,43 @@ shared.dlcomp_countdown.finished:Connect(function()
     round_started()
 end)
 
-shared.dlcomp_command_bot.add_command("round", "starts a round. format: ;round map_name game_mode [round_duration] [countdown_duration]", function(args)
+shared.dlcomp_command_bot.add_command("round", `starts a round with a countdown. format: {ROUND_COMMAND_FORMAT}`, function(args)
     local map_name, game_mode, round_duration, countdown_duration, info
     map_name, info = shared.dlcomp_parser.get_string(args)
     game_mode, info = shared.dlcomp_parser.get_string(info.remaining_text)
     round_duration, info = shared.dlcomp_parser.get_number(info.remaining_text, sharedvars.gm_match_time_minutes, 1)
     countdown_duration, info = shared.dlcomp_parser.get_number(info.remaining_text, last_countdown_duration, 5)
+
+    -- handle bad arguments
+    do
+        local errors = {}
+        
+        -- are all the required arguments given? fall through to print all the maps and gamemodes aswell
+        if map_name == "" or game_mode == "" then
+            table.insert(errors, `missing required arguments, command format: {ROUND_COMMAND_FORMAT}`)
+        end
+
+        -- does the given map exist?
+        if not table.find(map.get_maps(), map_name) then
+            table.insert(errors, `no map with name [{map_name}] found, list of maps: {table.concat(map.get_maps(), ", ")}`)
+        end
+
+        -- does the given gamemode exist?
+        if not gamemode.available_gamemodes[game_mode] then
+            local gamemode_list = {}
+            for name in pairs(gamemode.available_gamemodes) do
+                table.insert(gamemode_list, name)
+            end
+            table.insert(errors, `no gamemode with name [{game_mode}] found, list of gamemodes: {table.concat(gamemode_list, ", ")}`)
+        end
+
+        if #errors > 0 then
+            for _, err_reason in pairs(errors) do
+                chat.send_announcement(err_reason)
+            end
+            return
+        end
+    end
 
     prepare_round(map_name, game_mode, round_duration, countdown_duration)
 end)

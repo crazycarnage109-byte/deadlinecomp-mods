@@ -27,11 +27,11 @@ end
 
 -- listen for commands in chat
 chat.player_chatted:Connect(function(sender, channel, content)
-    -- check if the command prefix exists, and remove it if it does
+    -- check if the message has the command prefix
     if content:sub(1, prefix:len()) ~= prefix then
-        chat.send_announcement(`missing prefix`)
         return
     end
+    -- remove the command prefix
     content = content:sub(prefix:len()+1)
 
     -- only let the server owner execute commands

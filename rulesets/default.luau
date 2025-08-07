@@ -1,10 +1,13 @@
--- either require this directly, or paste it in your server autorun
+-- usage:
+  -- just put this in your server autorun: require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/rulesets/default.luau")
+  -- if you think you wanna edit it, just copy this entire file into your server autorun, no automatic updates then tho
 -- intentionally written in a way where you can run it multiple times safely
 
 -- load all modules
 if not shared.dlcomp_all_loaded then
 	require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/init.luau")
 end
+
 
 local geneva = shared.dlcomp_geneva
 

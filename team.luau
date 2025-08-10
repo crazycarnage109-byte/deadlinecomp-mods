@@ -70,5 +70,3 @@ shared.dlcomp_command_bot.add_command("team_scramble", "scramble players into te
 
     return "teams have been scrambled"
 end)
-
-shared.dlcomp_team = {}

@@ -16,6 +16,24 @@ local ROUND_COMMAND_FORMAT = ";round map_name game_mode [round_duration] [countd
 local last_countdown_duration = 15
 local want_gamemode: string?
 
+-- team scrambling prevention
+type player_teams = {[player]: team_id}
+do
+    function get_player_teams(): player_teams
+        local player_teams = {}
+        for i, player in pairs( players.get_all() ) do
+            player_teams[player] = player.get_team()
+        end
+        return player_teams
+    end
+
+    function set_player_teams(player_teams: player_teams)
+        for player, team in pairs( player_teams ) do
+            player.set_team(team)
+        end
+    end
+end
+
 function prepare_round(map_name: string, mode_name: string, round_duration: number, countdown_duration: number)
     last_countdown_duration = countdown_duration
     want_gamemode = mode_name
@@ -39,7 +57,12 @@ function round_started()
         return
     end
 
+    -- we also have to prevent the teams from getting scrambled by the game
+    -- the sharedvar for it wont be added until next update
+    local player_teams = get_player_teams()
     gamemode.force_set_gamemode(want_gamemode)
+    set_player_teams(player_teams)
+
     want_gamemode = nil
 end
 

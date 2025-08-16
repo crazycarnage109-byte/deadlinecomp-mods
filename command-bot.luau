@@ -25,7 +25,7 @@ function add_command(name: string, explanation: string, callback: (args: string)
     }
 end
 
--- listen for commands in chat
+-- listen for messages in chat
 chat.player_chatted:Connect(function(sender, channel, content)
     -- check if the message has the command prefix
     if content:sub(1, prefix:len()) ~= prefix then
@@ -36,7 +36,7 @@ chat.player_chatted:Connect(function(sender, channel, content)
 
     -- only let the server owner execute commands
     if sender ~= sharedvars.vip_owner then
-        chat.send_announcement(`youre not the private server owner.`)
+        chat.send_announcement(`youre not the private server owner. [{sender}] ~= [{sharedvars.vip_owner}]`)
         return
     end
 

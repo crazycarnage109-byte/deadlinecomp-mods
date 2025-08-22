@@ -11,6 +11,7 @@ declare shared: {
 	dlcomp_command_bot: {
 		add_command: (name: string, explanation: string, callback: (args: string) -> string?) -> nil,
 		toggle_admin: (player_name: string, toggle: boolean?) -> (boolean, string),
+		admin_list: {string}
 	},
 	dlcomp_parser: {
 		get_string: (args: string) -> (string, command_parse_info),

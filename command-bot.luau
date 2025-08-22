@@ -14,9 +14,7 @@ end
 
 local prefix = ";"
 local commands: {[string]: command_data} = {}
-local admins = {
-    [sharedvars.vip_owner] = true,
-}
+local admin_list = {sharedvars.vip_owner}
 
 type command_callback = (args: string) -> string?
 type command_data = {
@@ -35,33 +33,23 @@ end
 
 function toggle_admin(player_name: string, toggle: boolean?): (boolean, string)
     -- is the target player already a admin?
-    local is_admin = admins[player_name]
+    local is_admin = table.find(admin_list, player_name)
 
     -- user wants to switch the player's admin powers
     if toggle == nil then
         toggle = not is_admin
     end
 
-    -- actually update the admin list
-    admins[player_name] = toggle and true or nil
-
     -- returns
     if toggle == is_admin then
         return false, "no changes"
     elseif toggle then
+        table.insert(admin_list, player_name)
         return true, `gave [{player_name}] admin powers`
     else
+        table.remove(admin_list, is_admin)
         return true, `removed [{player_name}]'s admin powers`
     end
-end
-
-function format_admin_list()
-    local keys = {}
-    for admin in pairs(admins) do
-        table.insert(keys, admin)
-    end
-
-    return table.concat(keys, ", ")
 end
 
 -- listen for messages in chat
@@ -74,8 +62,8 @@ chat.player_chatted:Connect(function(sender, channel, content)
     content = content:sub(prefix:len()+1)
 
     -- only let admins execute commands
-    if not admins[sender] then
-        chat.send_announcement(`youre not a admin. admin list: {format_admin_list()}`)
+    if not table.find(admin_list, sender) then
+        chat.send_announcement(`only admins can execute commands. admin list: {table.concat(admin_list, ", ")}`)
         return
     end
 
@@ -119,11 +107,11 @@ add_command("admin", "toggles a player's ability to run commands, format: ;admin
 
     -- no args given, print the name of every admin
     if not string.match(args, "%S+") then
-        return format_admin_list()
+        return table.concat(admin_list, ", ")
     end
 
     if not want_player then
-        return "unclear player name"
+        return "unclear target player"
     end
 
     local success, message = toggle_admin(want_player.name, toggle)
@@ -134,6 +122,7 @@ end)
 shared.dlcomp_command_bot = {
     add_command = add_command,
     toggle_admin = toggle_admin,
+    admin_list = admin_list,
 }
 
 chat.send_announcement(`loaded dlcomp_command_bot with prefix {prefix}`)

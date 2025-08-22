@@ -40,11 +40,15 @@ function round_started()
     end
 
     -- we also have to prevent the teams from getting scrambled by the game
+    local team_scrambling_reset_value = sharedvars.gm_team_scrambling
     sharedvars.gm_team_scrambling = false
 
-    -- start the round timer
+    -- offically starts the round and timer
     gamemode.force_set_gamemode(want_gamemode)
     want_gamemode = nil
+
+    -- reset the team scrambling sharedvar to whatever it was before
+    sharedvars.gm_team_scrambling = team_scrambling_reset_value
 end
 
 -- countdown ended

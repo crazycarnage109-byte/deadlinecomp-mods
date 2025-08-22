@@ -38,9 +38,10 @@ for _, name in pairs(dlcomp_referees) do
 end
 
 
--- quality of life sharedvars
+-- qol sharedvars
 sharedvars.gm_team_balancing_threshold = 9999
 sharedvars.chat_tips_enabled = false
+sharedvars.gm_team_scrambling = false
 
 
 -- finish

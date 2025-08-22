@@ -7,8 +7,16 @@ if shared.dlcomp_command_bot then
     return
 end
 
+-- load arg parser module
+if not shared.dlcomp_parser then
+    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
+end
+
 local prefix = ";"
 local commands: {[string]: command_data} = {}
+local admins = {
+    [sharedvars.vip_owner] = true,
+}
 
 type command_callback = (args: string) -> string?
 type command_data = {
@@ -25,6 +33,37 @@ function add_command(name: string, explanation: string, callback: (args: string)
     }
 end
 
+function toggle_admin(player_name: string, toggle: boolean?): (boolean, string)
+    -- is the target player already a admin?
+    local is_admin = admins[player_name]
+
+    -- user wants to switch the player's admin powers
+    if toggle == nil then
+        toggle = not is_admin
+    end
+
+    -- actually update the admin list
+    admins[player_name] = toggle and true or nil
+
+    -- returns
+    if toggle == is_admin then
+        return false, "no changes"
+    elseif toggle then
+        return true, `gave [{player_name}] admin powers`
+    else
+        return true, `removed [{player_name}]'s admin powers`
+    end
+end
+
+function format_admin_list()
+    local keys = {}
+    for admin in pairs(admins) do
+        table.insert(keys, admin)
+    end
+
+    return table.concat(keys, ", ")
+end
+
 -- listen for messages in chat
 chat.player_chatted:Connect(function(sender, channel, content)
     -- check if the message has the command prefix
@@ -34,9 +73,9 @@ chat.player_chatted:Connect(function(sender, channel, content)
     -- remove the command prefix
     content = content:sub(prefix:len()+1)
 
-    -- only let the server owner execute commands
-    if sender ~= sharedvars.vip_owner then
-        chat.send_announcement(`youre not the private server owner. [{sender}] ~= [{sharedvars.vip_owner}]`)
+    -- only let admins execute commands
+    if not admins[sender] then
+        chat.send_announcement(`youre not a admin. admin list: {format_admin_list()}`)
         return
     end
 
@@ -55,7 +94,7 @@ chat.player_chatted:Connect(function(sender, channel, content)
 
     -- execute command
     local result = command_info.callback(command_args)
-    if (result) then
+    if result ~= nil then
         chat.send_announcement(result)
     end
 end)
@@ -73,10 +112,28 @@ add_command("help", "prints this message", function(args: string)
     return table.concat(results, "\n")
 end)
 
+add_command("admin", "toggles a player's ability to run commands, format: ;admin player_name [toggle]", function(args: string)
+    local info, want_player, toggle
+    want_player, info = shared.dlcomp_parser.get_player(args)
+    toggle, info = shared.dlcomp_parser.get_bool(info.remaining_text)
+
+    -- no args given, print the name of every admin
+    if not string.match(args, "%S+") then
+        return format_admin_list()
+    end
+
+    if not want_player then
+        return "unclear player name"
+    end
+
+    local success, message = toggle_admin(want_player.name, toggle)
+    return `{success and "SUCCESS" or "FAIL"}: {message}`
+end)
 
 -- let other mods add/remove commands
 shared.dlcomp_command_bot = {
     add_command = add_command,
+    toggle_admin = toggle_admin,
 }
 
-chat.send_announcement(`loaded dlcomp-command-bot module with prefix {prefix}`)
+chat.send_announcement(`loaded dlcomp_command_bot with prefix {prefix}`)

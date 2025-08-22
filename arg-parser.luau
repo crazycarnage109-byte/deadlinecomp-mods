@@ -3,6 +3,11 @@
 -- in its own module and not integrated into the command-bot because I dont wanna get in the way of people doing their own thing with their arguments
 -- honestly not super confident in this
 
+-- text that will return true if passed to get_bool
+-- keep entries lowercase
+local true_text = {"true", "t", "on", "enable", "1"}
+local false_text = {"false", "f", "off", "disable", "0"}
+
 -- creates a new parse_info instance, just for convenience
 -- see _interface.d.luau for the command_parse_info interface
 function new_info(): command_parse_info
@@ -53,6 +58,21 @@ function get_number(args: string, default: number?, min: number?, max: number?):
     return result, info
 end
 
+-- treats the next argument as a boolean
+-- will return nil if it cant be turned into a boolean, but the returned info will still remove the section
+function get_bool(args: string): (boolean?, command_parse_info)
+    local arg, info = get_string(args)
+
+    local text = string.lower(arg)
+    if table.find(true_text, text) then
+        return true, info
+    elseif table.find(false_text, text) then
+        return false, info
+    else
+        return nil, info
+    end
+end
+
 -- treats the next argument as a player name,
 -- will return nil if no such player exists, but the returned info will still remove the section
 function get_player(args: string, match_exact: boolean?): (player?, command_parse_info)
@@ -92,5 +112,6 @@ end
 shared.dlcomp_parser = {
     get_string = get_string,
     get_number = get_number,
+    get_bool = get_bool,
     get_player = get_player,
 }

@@ -10,10 +10,12 @@ declare shared: {
 	[string]: any,
 	dlcomp_command_bot: {
 		add_command: (name: string, explanation: string, callback: (args: string) -> string?) -> nil,
+		toggle_admin: (player_name: string, toggle: boolean?) -> (boolean, string),
 	},
 	dlcomp_parser: {
 		get_string: (args: string) -> (string, command_parse_info),
 		get_number: (args: string, default: number?, min: number?, max: number?) -> (number?, command_parse_info),
+		get_bool: (args: string) -> (boolean?, command_parse_info),
 		get_player: (args: string, match_exact: boolean?) -> (player?, command_parse_info),
 	},
 	dlcomp_countdown: {

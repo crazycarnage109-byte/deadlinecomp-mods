@@ -39,5 +39,8 @@ declare shared: {
 		print_known_weapons: () -> nil,
 		announce_ruleset: () -> nil,
 	},
-	dlcomp_round: {},
+	dlcomp_round: {
+		prepare_round: (map_name: string, mode_name: string, round_duration: number, countdown_duration: number) -> nil,
+		gamemode_aliases: {[string]: string},
+	},
 }

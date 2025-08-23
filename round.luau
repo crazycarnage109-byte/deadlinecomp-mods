@@ -16,6 +16,11 @@ local ROUND_COMMAND_FORMAT = ";round map_name game_mode [round_duration] [countd
 local last_countdown_duration = 15
 local want_gamemode: string?
 
+local gamemode_aliases = {
+    tdm = "team_deathmatch",
+    dom = "domination"
+}
+
 function prepare_round(map_name: string, mode_name: string, round_duration: number, countdown_duration: number)
     last_countdown_duration = countdown_duration
     want_gamemode = mode_name
@@ -56,6 +61,56 @@ shared.dlcomp_countdown.finished:Connect(function()
     round_started()
 end)
 
+
+function sections_after_match(sections: {string}, value: string): {string}?
+    local leftover_sections
+    for _, section in pairs( sections ) do
+        -- check if we hit the first match
+        if string.match(section, value) and not leftover_sections then
+            leftover_sections = {}
+            continue
+        end
+
+        -- store all the sections after the first match
+        if leftover_sections then
+            table.insert(leftover_sections, section)
+        end
+    end
+
+    return leftover_sections
+end
+
+-- reasoning: typing the full map name is quite annoying, but a simple partial-match search is bad because theres a lot of maps with similar names, ie claustro v3 and v4
+-- but those also immiedietly propose a solution; by doing multiple partial-matches on different sections of the map name,
+-- you can be imprecise with long sections, and precise with small differences
+-- ie to search for claustrophobic_v3, yould just type `cla_3`
+function match_by_sections(haystack: {string}, needle: string, seperator: string): {string}
+    needle = string.lower(needle)
+
+    local option_sections = {}
+    for _, option in pairs(haystack) do
+        option = string.lower(option)
+        option_sections[option] = string.split(option, seperator)
+    end
+
+    -- loop over every section of the needle
+    for _, needle_section in pairs( string.split(needle, seperator) ) do
+        -- loop over every option, discarding it if it doesnt have any matches
+        for option, remaining_sections in pairs( option_sections ) do
+            option_sections[option] = sections_after_match(remaining_sections, needle_section)
+        end
+    end
+
+    -- turn the result into a useful format (list of strings)
+    local results = {}
+    for option, _ in pairs(option_sections) do
+        table.insert(results, option)
+    end
+
+    return results
+end
+
+-- chat command
 shared.dlcomp_command_bot.add_command("round", `starts a round with a countdown. format: {ROUND_COMMAND_FORMAT}`, function(args)
     local map_name, game_mode, round_duration, countdown_duration, info
     map_name, info = shared.dlcomp_parser.get_string(args)
@@ -63,38 +118,44 @@ shared.dlcomp_command_bot.add_command("round", `starts a round with a countdown.
     round_duration, info = shared.dlcomp_parser.get_number(info.remaining_text, sharedvars.gm_match_time_minutes, 1)
     countdown_duration, info = shared.dlcomp_parser.get_number(info.remaining_text, last_countdown_duration, 5)
 
-    -- handle bad arguments
+    -- handle arguments
     do
-        local errors = {}
-        
-        -- are all the required arguments given? fall through to print all the maps and gamemodes aswell
+        -- are all the required arguments given?
         if map_name == "" or game_mode == "" then
-            table.insert(errors, `missing required arguments, command format: {ROUND_COMMAND_FORMAT}`)
+            return `missing required arguments, command format: {ROUND_COMMAND_FORMAT}`
         end
 
-        -- does the given map exist?
-        if not table.find(map.get_maps(), map_name) then
-            table.insert(errors, `no map with name [{map_name}] found, list of maps: {table.concat(map.get_maps(), ", ")}`)
+        -- find the map the player's searching for
+        local possible_maps = match_by_sections(map.get_maps(), map_name, "_")
+        if #possible_maps == 0 then
+            return `list of all maps: {table.concat(map.get_maps(), ", ")}`
+        elseif #possible_maps > 1 then
+            return `multiple maps match the argument: {table.concat(possible_maps, ", ")}`
+        else
+            map_name = possible_maps[1]
         end
 
-        -- does the given gamemode exist?
+        -- custom short names for gamemodes, because partial-matching just wont work for the mess that team_deathmatch is
+        game_mode = string.lower(game_mode)
+        if gamemode_aliases[game_mode] then
+            game_mode = gamemode_aliases[game_mode]
+        end
+
+        -- does the gamemode exist?
         if not gamemode.available_gamemodes[game_mode] then
             local gamemode_list = {}
             for name in pairs(gamemode.available_gamemodes) do
                 table.insert(gamemode_list, name)
             end
-            table.insert(errors, `no gamemode with name [{game_mode}] found, list of gamemodes: {table.concat(gamemode_list, ", ")}`)
-        end
-
-        if #errors > 0 then
-            for _, err_reason in pairs(errors) do
-                chat.send_announcement(err_reason)
-            end
-            return
+            return `no gamemode with name [{game_mode}] found, list of gamemodes: {table.concat(gamemode_list, ", ")}`
         end
     end
 
     prepare_round(map_name, game_mode, round_duration, countdown_duration)
+    return
 end)
 
-shared.dlcomp_round = {}
+shared.dlcomp_round = {
+    prepare_round = prepare_round,
+    gamemode_aliases = gamemode_aliases,
+}

@@ -20,6 +20,9 @@ local gamemode_aliases = {
     tdm = "team_deathmatch",
     dom = "domination"
 }
+local low_priority_maps = {
+    "test2_downtown_v2",
+}
 
 function prepare_round(map_name: string, mode_name: string, round_duration: number, countdown_duration: number)
     last_countdown_duration = countdown_duration
@@ -110,6 +113,23 @@ function match_by_sections(haystack: {string}, needle: string, seperator: string
     return results
 end
 
+function filter_low_priority<T>(to_filter: {T}, filter: {T})
+    local without = {}
+    for _, v in pairs(to_filter) do
+        if table.find(filter, v) then
+           continue 
+        end
+        table.insert(without, v)
+    end
+
+    -- only filter if it doesnt remove all your options
+    if #without > 0 then
+        return without
+    else
+        return to_filter
+    end
+end
+
 -- chat command
 shared.dlcomp_command_bot.add_command("round", `starts a round with a countdown. format: {ROUND_COMMAND_FORMAT}`, function(args)
     local map_name, game_mode, round_duration, countdown_duration, info
@@ -126,9 +146,14 @@ shared.dlcomp_command_bot.add_command("round", `starts a round with a countdown.
         end
 
         -- find the map the player's searching for
-        local possible_maps = match_by_sections(map.get_maps(), map_name, "_")
-        if #possible_maps == 0 then
-            return `list of all maps: {table.concat(map.get_maps(), ", ")}`
+        local all_maps = map.get_maps()
+        local possible_maps = match_by_sections(all_maps, map_name, "_")
+        possible_maps = filter_low_priority(possible_maps, low_priority_maps)
+
+        if table.find(all_maps, map_name) then
+            -- theres an exact match, just use that
+        elseif #possible_maps == 0 then
+            return `list of all maps: {table.concat(all_maps, ", ")}`
         elseif #possible_maps > 1 then
             return `multiple maps match the argument: {table.concat(possible_maps, ", ")}`
         else
@@ -158,4 +183,5 @@ end)
 shared.dlcomp_round = {
     prepare_round = prepare_round,
     gamemode_aliases = gamemode_aliases,
+    low_priority_maps = low_priority_maps,
 }

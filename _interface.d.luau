@@ -42,5 +42,6 @@ declare shared: {
 	dlcomp_round: {
 		prepare_round: (map_name: string, mode_name: string, round_duration: number, countdown_duration: number) -> nil,
 		gamemode_aliases: {[string]: string},
+		low_priority_maps: {string},
 	},
 }

@@ -94,5 +94,3 @@ shared.dlcomp_countdown = {
 
     finished = countdown_ended,
 }
-
-chat.send_announcement("loaded round admin module")

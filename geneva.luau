@@ -4,7 +4,10 @@
 -- - gun = firearms and rpgs, everything thats in slots 1 and 2
 -- - utility = grenades and knives, everything thats in slots 3 and 4, internally called `throwable`
 
--- todo: integrate with command bot
+-- load arg parser module
+if not shared.dlcomp_parser then
+    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
+end
 
 -- rules
 local banned_weapon_list = {}
@@ -14,7 +17,6 @@ local limited_utility = {"F1", "M67"} -- these count towards max_equippable_gren
 -- behaviour
 local enforce_rules = true -- whether the rules are active
 local announce_equipment_cleaning = true -- announces in chat what equipment was removed from a player's loadout, does not affect rules themselves
-local announce_unknown_equipment = true -- announces in chat when unknown equipment is found in a player's loadout
 
 -- constants
 local slot_order = {"primary", "secondary", "throwable1", "throwable2"}
@@ -59,12 +61,6 @@ do -- human-facing command-line stuff
 
 
     -- behaviour:
-    function should_announce_unknown_equipment(want: boolean)
-        want = not not want -- convert to bool
-        announce_unknown_equipment = want
-        print(`announce_unknown_equipment = {want}`)
-    end
-
     function should_announce_equipment_cleaning(want: boolean)
         want = not not want -- convert to bool
         announce_equipment_cleaning = want
@@ -156,13 +152,6 @@ do -- implementation
             context.allowed_nades_left -= 1
             return
         end
-
-        -- check if we're unaware of the weapon
-		-- this is probably unnecesary now that we're using config.weapon_names
-        if announce_unknown_equipment and not table.find(config.weapon_names, equipment_name) then
-            context.feedback[slot_name] = `unknown name {equipment_name}`
-            return
-        end
     end
 
     on_player_spawned:Connect(function(player_name: string)
@@ -193,14 +182,30 @@ do -- implementation
     end)
 end
 
+
+-- chat commands
+shared.dlcomp_command_bot.add_command("geneva_rules", "toggles geneva enforcing equipment rules", function(args: string)
+    local toggle, _ = shared.dlcomp_parser.get_bool(args)
+    toggle_rules(toggle)
+end)
+shared.dlcomp_command_bot.add_command("geneva_announce", "toggles whether geneva announces why a player's equipment got removed in chat", function(args: string)
+    local toggle, _ = shared.dlcomp_parser.get_bool(args)
+    if toggle == nil then
+        toggle = not announce_equipment_cleaning
+    end
+
+    announce_equipment_cleaning = toggle
+    return `geneva's equipment enforcement announcements are {toggle and "Enabled" or "Disabled"}`
+end)
+
+
 shared.dlcomp_geneva = {
-    -- rules, human-facing
+    -- rules
+    toggle_rules = toggle_rules,
     set_banned_weapons = set_banned_weapons,
     set_max_grenades = set_max_grenades,
-    -- behaviour, human-facing
+    -- behaviour
     should_announce_equipment_cleaning = should_announce_equipment_cleaning,
-    should_announce_unknown_equipment = should_announce_unknown_equipment,
-    toggle_rules = toggle_rules,
     -- information, entierly human-facing
     print_known_weapons = print_known_weapons,
     announce_ruleset = announce_ruleset,

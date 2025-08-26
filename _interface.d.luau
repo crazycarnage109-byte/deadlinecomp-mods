@@ -28,13 +28,12 @@ declare shared: {
 		finished: Signal<>,
 	},
 	dlcomp_geneva: {
-		-- rules, human-facing
+		-- rules
+		toggle_rules: (enabled: boolean?) -> nil,
 		set_banned_weapons: (new_bans: {string}) -> nil,
 		set_max_grenades: (max_grenades: number) -> nil,
-		-- behaviour, human-facing
+		-- behaviour
 		should_announce_equipment_cleaning: (want: boolean) -> nil,
-		should_announce_unknown_equipment: (want: boolean) -> nil,
-		toggle_rules: (enabled: boolean?) -> nil,
 		-- information, entierly human-facing
 		print_known_weapons: () -> nil,
 		announce_ruleset: () -> nil,

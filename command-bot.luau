@@ -14,7 +14,7 @@ end
 
 local prefix = ";"
 local commands: {[string]: command_data} = {}
-local admin_list = {sharedvars.vip_owner}
+local admin_list = {} -- see bottom of script for default admins
 
 type command_callback = (args: string) -> string?
 type command_data = {
@@ -22,6 +22,10 @@ type command_data = {
     explanation: string,
     callback: command_callback,
 }
+
+
+
+
 
 function add_command(name: string, explanation: string, callback: (args: string) -> string?)
     commands[name] = {
@@ -118,6 +122,10 @@ add_command("admin", "toggles a player's ability to run commands, format: ;admin
     return `{success and "SUCCESS" or "FAIL"}: {message}`
 end)
 
+
+
+
+
 -- let other mods add/remove commands
 shared.dlcomp_command_bot = {
     add_command = add_command,
@@ -125,4 +133,14 @@ shared.dlcomp_command_bot = {
     admin_list = admin_list,
 }
 
-chat.send_announcement(`loaded dlcomp_command_bot with prefix {prefix}`)
+
+
+
+
+-- add default admins
+-- note that sharedvars.vip_owner currently seems to change when the host leaves or someone else joins first
+-- function_caller is a better way to get the server owner's name, but is nil if ran from the autorun
+local default_admin = function_caller or sharedvars.vip_owner
+toggle_admin(default_admin, true)
+
+chat.send_announcement(`loaded dlcomp_command_bot; default admin is [{default_admin}]; say {prefix}help to get a list of commands`)

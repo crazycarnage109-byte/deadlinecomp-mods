@@ -16,7 +16,7 @@ local prefix = ";"
 local commands: {[string]: command_data} = {}
 local admin_list = {} -- see bottom of script for default admins
 
-type command_callback = (args: string) -> string?
+type command_callback = (args: string, extra: command_call_info) -> string?
 type command_data = {
     name: string,
     explanation: string,
@@ -27,7 +27,7 @@ type command_data = {
 
 
 
-function add_command(name: string, explanation: string, callback: (args: string) -> string?)
+function add_command(name: string, explanation: string, callback: command_callback)
     commands[name] = {
         name = name,
         explanation = explanation,
@@ -58,6 +58,8 @@ end
 
 -- listen for messages in chat
 chat.player_chatted:Connect(function(sender, channel, content)
+    local raw_message = content
+
     -- check if the message has the command prefix
     if content:sub(1, prefix:len()) ~= prefix then
         return
@@ -67,7 +69,8 @@ chat.player_chatted:Connect(function(sender, channel, content)
 
     -- only let admins execute commands
     if not table.find(admin_list, sender) then
-        chat.send_announcement(`only admins can execute commands. admin list: {table.concat(admin_list, ", ")}`)
+        chat.send_announcement(`only admins can execute commands.`)
+        print(`admins: {table.concat(admin_list, "; ")}`)
         return
     end
 
@@ -84,8 +87,21 @@ chat.player_chatted:Connect(function(sender, channel, content)
     -- leave the rest of the user input raw, and let the callback deal with it
     local command_args = string.sub(content, command_name:len()+2)
 
+    -- construct command_call_info
+    local extra: command_call_info = {
+        caller = players.get(sender),
+        message_channel = channel,
+        raw_message = raw_message,
+    }
+
+    -- failsafe
+    if extra.caller == nil then
+        chat.send_announcement(`couldnt get player object from name [{sender}]`)
+        return
+    end
+
     -- execute command
-    local result = command_info.callback(command_args)
+    local result = command_info.callback(command_args, extra)
     if result ~= nil then
         chat.send_announcement(result)
     end
@@ -111,7 +127,9 @@ add_command("admin", "toggles a player's ability to run commands, format: ;admin
 
     -- no args given, print the name of every admin
     if not string.match(args, "%S+") then
-        return table.concat(admin_list, ", ")
+        local admin_list_string = table.concat(admin_list, "; ")
+        print(admin_list_string)
+        return admin_list_string
     end
 
     if not want_player then

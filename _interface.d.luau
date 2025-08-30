@@ -6,10 +6,17 @@ export type command_parse_info = {
     converted_from: string,
 }
 
+--- used by command-bot.luau
+export type command_call_info = {
+    message_channel: string,
+    raw_message: string,
+    caller: player,
+}
+
 declare shared: {
 	[string]: any,
 	dlcomp_command_bot: {
-		add_command: (name: string, explanation: string, callback: (args: string) -> string?) -> nil,
+		add_command: (name: string, explanation: string, callback: (args: string, extra: command_call_info) -> string?) -> nil,
 		toggle_admin: (player_name: string, toggle: boolean?) -> (boolean, string),
 		admin_list: {string}
 	},

@@ -22,7 +22,6 @@ geneva.set_max_grenades(1)
 
 -- behavior
 geneva.should_announce_equipment_cleaning(true)
-geneva.should_announce_unknown_equipment(true)
 
 
 -- give dlcomp staff ability to run commands even if they dont own the server

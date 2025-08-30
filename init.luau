@@ -37,4 +37,7 @@ require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/r
 -- load moderation commands
 require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/moderation.luau")
 
+-- load misc commands
+require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/misc.luau")
+
 shared.dlcomp_all_loaded = true

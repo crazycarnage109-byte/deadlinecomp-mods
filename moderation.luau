@@ -7,13 +7,37 @@ if not shared.dlcomp_parser then
     require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
 end
 
-shared.dlcomp_command_bot.add_command("ban", "bans a person from the server", function(args: string)
+local banned_players = {}
+
+shared.dlcomp_command_bot.add_command("ban", "bans a player from the server", function(args: string)
 	local player, _ = shared.dlcomp_parser.get_player(args)
 	if not player then
 		return "unclear target player"
 	end
-	player.ban_from_server()
+
+	table.insert(banned_players, player.name)
+	player.kick()
 	return `banned {player.name}`
+end)
+
+shared.dlcomp_command_bot.add_command("unban", "unbans a player from the server", function(args: string)
+	local want_name, _ = shared.dlcomp_parser.get_string(args)
+
+	-- partial match with banned_players
+	local index
+	for i, name in pairs(banned_players) do
+		if not string.match(name, want_name) then
+			continue
+		end
+
+		if index ~= nil then
+			return `multiple banned players match the input [{want_name}]`
+		end
+		index = i
+	end
+
+	local full_name = table.remove(banned_players, index)
+	return `unbanned [{full_name}]`
 end)
 
 shared.dlcomp_command_bot.add_command("kick", "kicks a person from the server", function(args: string)
@@ -25,7 +49,7 @@ shared.dlcomp_command_bot.add_command("kick", "kicks a person from the server", 
 	return `kicked {player.name}`
 end)
 
-shared.dlcomp_command_bot.add_command("kick_except", "kicks everyone except a list of players, and you", function(args: string)
+shared.dlcomp_command_bot.add_command("kick_except", "kicks everyone except admins and a list of players ", function(args: string)
 	-- dont allow admins to get kicked
 	local exception_list = table.clone(shared.dlcomp_command_bot.admin_list)
 
@@ -66,4 +90,28 @@ shared.dlcomp_command_bot.add_command("respawn", "respawns a player if theyre al
 	else
 		return `[{player.name}] isnt spawned`
 	end
+end)
+
+shared.dlcomp_command_bot.add_command("kill", "kills a player", function(args: string)
+	local player, _ = shared.dlcomp_parser.get_player(args)
+	if not player then
+		return "unclear target player"
+	end
+
+	player.kill()
+	return `killed [{player.name}]`
+end)
+
+-- kick any banned players that try to rejoin
+on_player_joined:Connect(function(player_name: string)
+	if not table.find(banned_players, player_name) then
+		return
+	end
+
+	local player = players.get(player_name)
+	if not player then
+		return
+	end
+
+	player.kick()
 end)

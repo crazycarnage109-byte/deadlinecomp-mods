@@ -41,6 +41,7 @@ end
 sharedvars.gm_team_balancing_threshold = 9999
 sharedvars.chat_tips_enabled = false
 sharedvars.gm_team_scrambling = false
+sharedvars.plr_freecam_fov = 90
 
 
 -- finish

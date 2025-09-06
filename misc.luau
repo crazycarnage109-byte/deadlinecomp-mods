@@ -46,5 +46,5 @@ shared.dlcomp_command_bot.add_command("rand", "selects a random value from the a
 	local index = math.random(#arg_list)
 
 	-- output
-	return `RANDOM VALUE: {arg_list[index]}`
+	return arg_list[index]
 end)

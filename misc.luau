@@ -24,3 +24,27 @@ shared.dlcomp_command_bot.add_command("cam", "changes the player's cam mode. for
 	player.set_camera_mode(want_mode)
 	return `set [{player.name}]'s camera mode to [{want_mode}]`
 end)
+
+shared.dlcomp_command_bot.add_command("rand", "selects a random value from the argument list", function(args: string, extra: command_call_info)
+	-- get all args
+	local arg_list = {}
+	while true do
+		local cur_arg, info = shared.dlcomp_parser.get_string(args)
+		if cur_arg == "" then
+			break
+		end
+
+		table.insert(arg_list, cur_arg)
+		args = info.remaining_text
+	end
+
+	if #arg_list < 2 then
+		return `please include atleast 2 arguments, seperated by whitespace`
+	end
+
+	-- choose a random arg
+	local index = math.random(#arg_list)
+
+	-- output
+	return `RANDOM VALUE: {arg_list[index]}`
+end)

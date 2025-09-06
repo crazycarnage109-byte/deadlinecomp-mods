@@ -10,6 +10,10 @@ end
 if not shared.dlcomp_parser then
     require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
 end
+-- load common functions
+if not shared.dlcomp_table then
+    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/table.luau")
+end
 
 local ROUND_COMMAND_FORMAT = ";round map_name game_mode [round_duration] [countdown_duration]"
 
@@ -65,62 +69,9 @@ shared.dlcomp_countdown.finished:Connect(function()
 end)
 
 
-function sections_after_match(sections: {string}, value: string): {string}?
-    local leftover_sections
-    for _, section in pairs( sections ) do
-        -- check if we hit the first match
-        if string.match(section, value) and not leftover_sections then
-            leftover_sections = {}
-            continue
-        end
-
-        -- store all the sections after the first match
-        if leftover_sections then
-            table.insert(leftover_sections, section)
-        end
-    end
-
-    return leftover_sections
-end
-
--- reasoning: typing the full map name is quite annoying, but a simple partial-match search is bad because theres a lot of maps with similar names, ie claustro v3 and v4
--- but those also immiedietly propose a solution; by doing multiple partial-matches on different sections of the map name,
--- you can be imprecise with long sections, and precise with small differences
--- ie to search for claustrophobic_v3, yould just type `cla_3`
-function match_by_sections(haystack: {string}, needle: string, seperator: string): {string}
-    needle = string.lower(needle)
-
-    local option_sections = {}
-    for _, option in pairs(haystack) do
-        option = string.lower(option)
-        option_sections[option] = string.split(option, seperator)
-    end
-
-    -- loop over every section of the needle
-    for _, needle_section in pairs( string.split(needle, seperator) ) do
-        -- loop over every option, discarding it if it doesnt have any matches
-        for option, remaining_sections in pairs( option_sections ) do
-            option_sections[option] = sections_after_match(remaining_sections, needle_section)
-        end
-    end
-
-    -- turn the result into a useful format (list of strings)
-    local results = {}
-    for option, _ in pairs(option_sections) do
-        table.insert(results, option)
-    end
-
-    return results
-end
 
 function filter_low_priority<T>(to_filter: {T}, filter: {T})
-    local without = {}
-    for _, v in pairs(to_filter) do
-        if table.find(filter, v) then
-           continue 
-        end
-        table.insert(without, v)
-    end
+    local without = shared.dlcomp_table.in_filter(to_filter, filter)
 
     -- only filter if it doesnt remove all your options
     if #without > 0 then
@@ -147,7 +98,7 @@ shared.dlcomp_command_bot.add_command("round", `starts a round with a countdown.
 
         -- find the map the player's searching for
         local all_maps = map.get_maps()
-        local possible_maps = match_by_sections(all_maps, map_name, "_")
+        local possible_maps = shared.dlcomp_string.partial_match_sections(all_maps, map_name, "_")
         possible_maps = filter_low_priority(possible_maps, low_priority_maps)
 
         if table.find(all_maps, map_name) then

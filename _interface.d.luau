@@ -26,6 +26,15 @@ declare shared: {
 		get_bool: (args: string) -> (boolean?, command_parse_info),
 		get_player: (args: string, match_exact: boolean?) -> (player?, command_parse_info),
 	},
+	dlcomp_table: {
+		get_page: <T>(list: {T}, page_length: number, want_page: number) -> ({T}, number),
+		in_filter: <T>(values: {T}, filter: {T}) -> {T},
+		not_in_filter: <T>(values: {T}, filter: {T}) -> {T},
+	},
+	dlcomp_string: {
+		trim_start: (str: string) -> string,
+		partial_match_sections: (haystack: {string}, needle: string, seperator: string) -> {string},
+	},
 	dlcomp_countdown: {
 		countdown: (duration: number) -> nil,
 		cancel_countdown: () -> nil,

@@ -8,6 +8,10 @@
 if not shared.dlcomp_parser then
     require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
 end
+-- load common functions
+if not shared.dlcomp_table then
+    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/table.luau")
+end
 
 -- rules
 local banned_weapon_list = {}
@@ -29,25 +33,12 @@ type cleaning_context = {
     allowed_nades_left: number,
 }
 
-do -- shared
-    function values_not_in_list(compare_against: {any}, values: {any}): {any}
-        local not_found = {}
-        for _, value in pairs(values) do
-            if not table.find(compare_against, value) then
-                table.insert(not_found, value)
-            end
-        end
-
-        return not_found
-    end
-end
-
 do -- human-facing command-line stuff
 
     -- rules:
     function set_banned_weapons(new_bans: {string})
         -- warn the user if we're not aware of all of the guns
-        local unknown_list = values_not_in_list(config.weapon_names, new_bans)
+        local unknown_list = shared.dlcomp_table.not_in_filter(new_bans, config.weapon_names)
         if #unknown_list ~= 0 then
             warn(`unknown weapons in ban list: `, table.concat(unknown_list, ", "))
         end

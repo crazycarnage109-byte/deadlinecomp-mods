@@ -3,6 +3,10 @@
 -- in its own module and not integrated into the command-bot because I dont wanna get in the way of people doing their own thing with their arguments
 -- honestly not super confident in this
 
+if not shared.dlcomp_string then
+    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/string.luau")
+end
+
 -- text that will return true if passed to get_bool
 -- keep entries lowercase
 local true_text = {"true", "t", "on", "enable", "1"}
@@ -17,19 +21,13 @@ function new_info(): command_parse_info
     }
 end
 
--- just removes whitespace from the start of a string
-function trim_start(str: string): string
-    return string.gsub(str, "^%s+", "", 1)
-end
-
-
 -- treats the next argument as a string
 -- cant fail
 function get_string(args: string): (string, command_parse_info)
     local info = new_info()
 
     -- remove whitespace from start
-    args = trim_start(args)
+    args = shared.dlcomp_string.trim_start(args)
 
     -- scan until next whitespace
     local current_arg = string.match(args, "^%S*")

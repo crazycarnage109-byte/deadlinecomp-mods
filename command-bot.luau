@@ -37,7 +37,8 @@ end
 
 function toggle_admin(player_name: string, toggle: boolean?): (boolean, string)
     -- is the target player already a admin?
-    local is_admin = table.find(admin_list, player_name)
+    local existing_index = table.find(admin_list, player_name)
+    local is_admin = not not existing_index
 
     -- user wants to switch the player's admin powers
     if toggle == nil then
@@ -51,7 +52,7 @@ function toggle_admin(player_name: string, toggle: boolean?): (boolean, string)
         table.insert(admin_list, player_name)
         return true, `gave [{player_name}] admin powers`
     else
-        table.remove(admin_list, is_admin)
+        table.remove(admin_list, existing_index)
         return true, `removed [{player_name}]'s admin powers`
     end
 end

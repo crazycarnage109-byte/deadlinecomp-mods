@@ -1,3 +1,4 @@
+--!strict
 
 function get_page<T>(list: {T}, page_length: number, want_page: number): ({T}, number)
 	local max_page = math.ceil( #list / page_length )

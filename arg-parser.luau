@@ -1,3 +1,5 @@
+--!strict
+
 -- Argument Parser module
 -- intended to use arguments attached to chat commands
 -- in its own module and not integrated into the command-bot because I dont wanna get in the way of people doing their own thing with their arguments
@@ -30,7 +32,7 @@ function get_string(args: string): (string, command_parse_info)
     args = shared.dlcomp_string.trim_start(args)
 
     -- scan until next whitespace
-    local current_arg = string.match(args, "^%S*")
+    local current_arg = string.match(args, "^%S*") or ""
 
     -- see parse_info's comments
     info.converted_from = current_arg

@@ -1,3 +1,5 @@
+--!strict
+
 -- Command Bot module
 -- listens for commands written in chat and passes them to other modules
 -- exists because the built-in command bot doesnt let you register custom commands
@@ -70,7 +72,7 @@ chat.player_chatted:Connect(function(sender, channel, content)
 
     -- only let admins execute commands
     if not table.find(admin_list, sender) then
-        chat.send_announcement(`only admins can execute commands.`)
+        chat.send_announcement(`only admins can execute commands. you are [{sender}]`)
         print(`admins: {table.concat(admin_list, "; ")}`)
         return
     end
@@ -88,18 +90,19 @@ chat.player_chatted:Connect(function(sender, channel, content)
     -- leave the rest of the user input raw, and let the callback deal with it
     local command_args = string.sub(content, command_name:len()+2)
 
+    -- get the player object of the caller
+    local caller = players.get(sender)
+    if not caller then
+        chat.send_announcement(`cant get player object from username [{sender}]`)
+        return
+    end
+
     -- construct command_call_info
     local extra: command_call_info = {
-        caller = players.get(sender),
+        caller = caller,
         message_channel = channel,
         raw_message = raw_message,
     }
-
-    -- failsafe
-    if extra.caller == nil then
-        chat.send_announcement(`couldnt get player object from name [{sender}]`)
-        return
-    end
 
     -- execute command
     local result = command_info.callback(command_args, extra)

@@ -71,11 +71,11 @@ end)
 
 
 function filter_low_priority<T>(to_filter: {T}, filter: {T})
-    local without = shared.dlcomp_table.in_filter(to_filter, filter)
+    local without_low_priority = shared.dlcomp_table.not_in_filter(to_filter, filter)
 
     -- only filter if it doesnt remove all your options
-    if #without > 0 then
-        return without
+    if #without_low_priority > 0 then
+        return without_low_priority
     else
         return to_filter
     end

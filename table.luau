@@ -12,15 +12,14 @@ function get_page<T>(list: {T}, page_length: number, want_page: number): ({T}, n
 end
 
 function in_filter<T>(values: {T}, filter: {T}): {T}
-	local output = {}
-    for _, v in pairs(values) do
-        if table.find(filter, v) then
-           continue 
+    local output = {}
+    for _, value in pairs(values) do
+        if table.find(filter, value) then
+            table.insert(output, value)
         end
-        table.insert(output, v)
     end
 
-	return output
+    return output
 end
 
 function not_in_filter<T>(values: {T}, filter: {T}): {T}

@@ -136,7 +136,9 @@ do -- implementation
         -- allowed to only carry a limited amount of this type of weapon
         if table.find(limited_utility, equipment_name) then
             if context.allowed_nades_left <= 0 then
-                context.feedback[slot_name] = `max {max_equippable_grenades} grenades`
+                if announce_equipment_cleaning then
+                    context.feedback[slot_name] = `max {max_equippable_grenades} grenades`
+                end
                 player.set_weapon(slot_name, slot_empty)
                 return
             end

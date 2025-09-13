@@ -17,6 +17,7 @@ end
 local prefix = ";"
 local commands: {[string]: command_data} = {}
 local admin_list = {} -- see bottom of script for default admins
+local command_permissions = true -- whether commands are limited to admins only
 
 type command_callback = (args: string, extra: command_call_info) -> string?
 type command_data = {
@@ -59,6 +60,15 @@ function toggle_admin(player_name: string, toggle: boolean?): (boolean, string)
     end
 end
 
+function toggle_command_permissions(toggle: boolean?)
+    if toggle == nil then
+        toggle = not command_permissions
+    end
+    local as_bool = not not toggle
+    command_permissions = as_bool
+    print(`command_permissions = {as_bool}`)
+end
+
 -- listen for messages in chat
 chat.player_chatted:Connect(function(sender, channel, content)
     local raw_message = content
@@ -71,7 +81,7 @@ chat.player_chatted:Connect(function(sender, channel, content)
     content = content:sub(prefix:len()+1)
 
     -- only let admins execute commands
-    if not table.find(admin_list, sender) then
+    if command_permissions and not table.find(admin_list, sender) then
         chat.send_announcement(`only admins can execute commands. you are [{sender}]`)
         print(`admins: {table.concat(admin_list, "; ")}`)
         return
@@ -148,10 +158,11 @@ end)
 
 
 
--- let other mods add/remove commands
+-- let other modules add/remove commands
 shared.dlcomp_command_bot = {
     add_command = add_command,
     toggle_admin = toggle_admin,
+    toggle_command_permissions = toggle_command_permissions,
     admin_list = admin_list,
 }
 

@@ -5,7 +5,7 @@
 
 -- load command bot
 if not shared.dlcomp_command_bot then
-    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/command-bot.luau")
+    require("https://raw.githubusercontent.com/crazycarnage109-byte/deadlinecomp-mods/refs/heads/main/command-bot.luau")
 end
 
 local active_countdown: thread?

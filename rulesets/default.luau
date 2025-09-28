@@ -16,6 +16,8 @@ geneva.set_banned_weapons({
 	"RPG7",
 	"PSRL",
 	"M67",
+	"Vector",
+	"SA58",
 	-- "F1",
 })
 geneva.set_max_grenades(1)

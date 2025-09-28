@@ -6,7 +6,7 @@
 -- honestly not super confident in this
 
 if not shared.dlcomp_string then
-    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/string.luau")
+    require("https://raw.githubusercontent.com/crazycarnage109-byte/deadlinecomp-mods/refs/heads/main/string.luau")
 end
 
 -- text that will return true if passed to get_bool

@@ -11,7 +11,7 @@ end
 
 -- load arg parser module
 if not shared.dlcomp_parser then
-    require("https://raw.githubusercontent.com/LegitACarWithAGun/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
+    require("https://raw.githubusercontent.com/crazycarnage109-byte/deadlinecomp-mods/refs/heads/main/arg-parser.luau")
 end
 
 local prefix = ";"
